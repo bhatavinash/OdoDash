@@ -415,7 +415,8 @@ def notifications():
     elif request.form.get('ntfy_token', '').strip():
         current_user.ntfy_token = request.form.get('ntfy_token').strip()
     current_user.pushover_user_key = request.form.get('pushover_user_key') or None
-    current_user.discord_webhook_url = discord_webhook_url
+    if discord_webhook_url:
+        current_user.discord_webhook_url = discord_webhook_url
     db.session.commit()
     flash(_('Notification preferences updated'), 'success')
     return redirect(url_for('auth.settings') + '#notifications')
