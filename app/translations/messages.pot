@@ -6369,3 +6369,8 @@ msgstr ""
 msgid "No fuel prices recorded yet."
 msgstr ""
 
+
+
+#: app/templates/auth/settings/_notifications.html
+msgid "Discord"
+msgstr ""
