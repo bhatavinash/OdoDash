@@ -6408,3 +6408,8 @@ msgstr "消費トレンドを表示するデータが不足しています。満
 #: app/templates/vehicles/view.html:964
 msgid "No fuel prices recorded yet."
 msgstr "まだ燃料価格が記録されていません。"
+
+
+#: app/templates/auth/settings/_notifications.html
+msgid "Discord"
+msgstr "Discord"
