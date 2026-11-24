@@ -72,3 +72,50 @@ class TestSendTelegram:
             success, error = NotificationService.send_telegram('123', 'Title', 'Message')
         assert success is False
         assert error == 'blocked'
+
+
+
+class TestSendDiscord:
+    def test_requires_webhook_url(self, app):
+        success, error = NotificationService.send_discord(None, 'Title', 'Message')
+        assert success is False
+        assert 'not configured' in error
+
+    def test_rejects_non_https_or_non_discord_urls(self, app):
+        for url in (
+            'http://discord.com/api/webhooks/123/token',
+            'https://example.com/api/webhooks/123/token',
+            'https://discord.com.evil.example/api/webhooks/123/token',
+        ):
+            success, error = NotificationService.send_discord(url, 'Title', 'Message')
+            assert success is False
+            assert 'Invalid Discord webhook URL' in error
+
+    def test_posts_embed_to_discord(self, app):
+        with patch('app.services.notifications.urlopen') as mock_open:
+            mock_open.return_value.__enter__.return_value = object()
+            success, error = NotificationService.send_discord(
+                'https://discord.com/api/webhooks/123/secret', 'Reminder title', 'Reminder body'
+            )
+
+        assert success is True
+        req = mock_open.call_args[0][0]
+        assert req.full_url == 'https://discord.com/api/webhooks/123/secret'
+        assert req.get_header('Content-type') == 'application/json'
+        import json
+        payload = json.loads(req.data.decode('utf-8'))
+        assert payload['embeds'][0] == {
+            'title': 'Reminder title',
+            'description': 'Reminder body',
+        }
+        assert payload['allowed_mentions'] == {'parse': []}
+
+    def test_reports_discord_http_errors(self, app):
+        from urllib.error import HTTPError
+        with patch('app.services.notifications.urlopen',
+                   side_effect=HTTPError('https://discord.com', 400, 'Bad Request', {}, None)):
+            success, error = NotificationService.send_discord(
+                'https://discord.com/api/webhooks/123/secret', 'Title', 'Message'
+            )
+        assert success is False
+        assert 'HTTP 400' in error
