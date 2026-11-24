@@ -119,3 +119,20 @@ class TestSendDiscord:
             )
         assert success is False
         assert 'HTTP 400' in error
+
+    def test_notification_method_dispatches_to_discord(self, app):
+        from types import SimpleNamespace
+        user = SimpleNamespace(
+            notification_method='discord',
+            discord_webhook_url='https://discord.com/api/webhooks/123/secret',
+            email='user@example.com',
+        )
+        with patch.object(NotificationService, 'send_discord',
+                          return_value=(True, None)) as send_discord:
+            success, error = NotificationService.send_notification(user, 'Title', 'Message')
+
+        assert success is True
+        assert error is None
+        send_discord.assert_called_once_with(
+            user.discord_webhook_url, 'Title', 'Message'
+        )
