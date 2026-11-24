@@ -4,6 +4,7 @@ import json
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from urllib.request import urlopen, Request
+from urllib.parse import urlparse
 from urllib.error import URLError, HTTPError
 from app.models import AppSettings
 from app.utils import utcnow
@@ -74,6 +75,43 @@ class NotificationService:
             req = Request(webhook_url, data=data, headers={
                 'Content-Type': 'application/json',
                 'User-Agent': 'OdoDash/1.0'
+            })
+            with urlopen(req, timeout=10) as response:
+                return True, None
+        except HTTPError as e:
+            return False, f"HTTP {e.code}: {e.reason}"
+        except URLError as e:
+            return False, f"URL Error: {e.reason}"
+        except Exception as e:
+            return False, str(e)
+
+    @staticmethod
+    def send_discord(webhook_url, title, message):
+        """Send a reminder to a Discord channel using its incoming webhook."""
+        if not webhook_url:
+            return False, "Discord webhook URL not configured"
+
+        # A Discord webhook URL contains its secret token. Never send it over
+        # an unencrypted connection or to a non-Discord host.
+        parsed = urlparse(webhook_url)
+        if (parsed.scheme != 'https' or parsed.hostname != 'discord.com'
+                or not parsed.path.startswith('/api/webhooks/')
+                or parsed.username or parsed.password or parsed.query or parsed.fragment):
+            return False, "Invalid Discord webhook URL; use an HTTPS Discord webhook URL"
+
+        payload = {
+            'embeds': [{
+                'title': (title or 'OdoDash Notification')[:256],
+                'description': (message or '')[:4096],
+            }],
+            'allowed_mentions': {'parse': []},
+        }
+
+        try:
+            data = json.dumps(payload).encode('utf-8')
+            req = Request(webhook_url, data=data, headers={
+                'Content-Type': 'application/json',
+                'User-Agent': 'OdoDash/1.0',
             })
             with urlopen(req, timeout=10) as response:
                 return True, None
@@ -203,6 +241,9 @@ class NotificationService:
 
         elif method == 'webhook':
             return NotificationService.send_webhook(user.webhook_url, payload)
+
+        elif method == 'discord':
+            return NotificationService.send_discord(user.discord_webhook_url, title, message)
 
         elif method == 'ntfy':
             return NotificationService.send_ntfy(user.ntfy_topic, title, message, token=user.ntfy_token)
