@@ -1,4 +1,5 @@
 import os
+from urllib.parse import urlparse
 import uuid
 import requests
 from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app, jsonify
@@ -392,6 +393,17 @@ def notifications():
             flash(_('Invalid webhook URL: %(error)s') % {'error': error_msg}, 'error')
             return redirect(url_for('auth.settings') + '#notifications')
 
+    discord_webhook_url = request.form.get('discord_webhook_url', '').strip() or None
+    if discord_webhook_url:
+        is_valid, error_msg = validate_webhook_url(discord_webhook_url)
+        parsed = urlparse(discord_webhook_url)
+        if (not is_valid or parsed.scheme != 'https'
+                or parsed.hostname != 'discord.com'
+                or not parsed.path.startswith('/api/webhooks/')
+                or parsed.username or parsed.password or parsed.query or parsed.fragment):
+            flash(_('Invalid Discord webhook URL. Use an HTTPS Discord channel webhook URL.'), 'error')
+            return redirect(url_for('auth.settings') + '#notifications')
+
     current_user.email_reminders = request.form.get('email_reminders') == 'true'
     current_user.reminder_days_before = int(request.form.get('reminder_days_before', 7))
     current_user.notification_method = request.form.get('notification_method', 'email')
@@ -403,6 +415,7 @@ def notifications():
     elif request.form.get('ntfy_token', '').strip():
         current_user.ntfy_token = request.form.get('ntfy_token').strip()
     current_user.pushover_user_key = request.form.get('pushover_user_key') or None
+    current_user.discord_webhook_url = discord_webhook_url
     db.session.commit()
     flash(_('Notification preferences updated'), 'success')
     return redirect(url_for('auth.settings') + '#notifications')
