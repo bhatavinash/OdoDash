@@ -77,12 +77,11 @@
             </div>
         </div>
         <div id="notification-discord" class="notification-field settings-stack" hidden>
-            <p class="settings-row__hint"><a class="api-link" href="https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks" target="_blank" rel="noopener">Discord webhooks</a> {{ _('send reminders directly to a channel. Create an incoming webhook in your channel settings and paste its URL below.') }}</p>
+            <p class="settings-row__hint"><a class="api-link" href="https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks" target="_blank" rel="noopener">Discord webhooks</a> {{ _('Notifications will be sent as JSON POST requests to your webhook URL.') }}</p>
             <div class="ds-field">
-                <label class="ds-field__label" for="discord_webhook_url">{{ _('Discord Webhook URL') }}</label>
+                <label class="ds-field__label" for="discord_webhook_url">{{ _('Webhook URL') }}</label>
                 <input type="password" name="discord_webhook_url" id="discord_webhook_url" class="ds-control" autocomplete="off"
-                       placeholder="{% if current_user.discord_webhook_url %}{{ _('Webhook saved — enter a new URL to replace it') }}{% else %}https://discord.com/api/webhooks/...{% endif %}">
-                <p class="form-hint">{{ _('The webhook URL is secret and must use HTTPS. Leave blank to keep the saved URL.') }}</p>
+                       placeholder="https://discord.com/api/webhooks/...">
             </div>
         </div>
         <div id="notification-pushover" class="notification-field settings-stack" hidden>
