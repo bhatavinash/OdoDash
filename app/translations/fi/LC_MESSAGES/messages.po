@@ -6589,3 +6589,8 @@ msgstr ""
 #: app/templates/vehicles/view.html:964
 msgid "No fuel prices recorded yet."
 msgstr "Polttoaineen hintoja ei ole vielä kirjattu."
+
+
+#: app/templates/auth/settings/_notifications.html
+msgid "Discord"
+msgstr "Discord"
