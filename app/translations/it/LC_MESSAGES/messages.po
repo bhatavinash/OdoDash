@@ -6629,3 +6629,8 @@ msgstr ""
 #: app/templates/vehicles/view.html:964
 msgid "No fuel prices recorded yet."
 msgstr "Nessun prezzo del carburante ancora registrato."
+
+
+#: app/templates/auth/settings/_notifications.html
+msgid "Discord"
+msgstr "Discord"
