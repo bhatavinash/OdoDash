@@ -6516,3 +6516,8 @@ msgstr ""
 #: app/templates/vehicles/view.html:964
 msgid "No fuel prices recorded yet."
 msgstr "لم يتم تسجيل أي أسعار وقود بعد."
+
+
+#: app/templates/auth/settings/_notifications.html
+msgid "Discord"
+msgstr "Discord"
