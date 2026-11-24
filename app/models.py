@@ -116,11 +116,12 @@ class User(UserMixin, db.Model):
     # Notification preferences
     email_reminders = db.Column(db.Boolean, default=True)
     reminder_days_before = db.Column(db.Integer, default=7)  # Days before due date to notify
-    notification_method = db.Column(db.String(20), default='email')  # email, webhook, ntfy, pushover, none
+    notification_method = db.Column(db.String(20), default='email')  # email, webhook, ntfy, pushover, telegram, discord
     webhook_url = db.Column(db.String(500))  # URL to POST notifications to
     ntfy_topic = db.Column(db.String(200))  # ntfy.sh topic or custom server URL
     ntfy_token = db.Column(db.String(200))  # access token for authenticated ntfy servers (#90)
     pushover_user_key = db.Column(db.String(50))  # Pushover user key
+    discord_webhook_url = db.Column(db.String(500))  # Discord incoming webhook URL
 
     # Password reset
     password_reset_token = db.Column(db.String(100), unique=True, index=True)
